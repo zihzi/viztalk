@@ -1,0 +1,42 @@
+Here is the database table column header [HEAD]:{head} and user's query(the sentences between the <<<>>> symbols).
+Based on the user's query and refering to the header, the structure of the question should be organized as follows:["Data focus","Category","Color attribute","Chart type"].
+"Data focus":The main piece of information user is interested in.Try to make it related to the header.
+"Category":The grouping or categorization attribute from the header.
+"Color attribute":The attribute used to color or differentiate segments within the chart.
+"Chart type":If a chart type is specified, determine which types it is refering to the following list.If the chart type is not in the following list, choose a reasonable one from the list.
+A.bar
+B.stacked bar
+C.line
+D.grouped line
+E.scatter
+F.grouped scatter
+G.pie
+Use the structure of the question to generate sentences which can enunciate user's query.
+
+Example1:
+[HEAD]: Model|MPG|Cylinders|Displacement|Horsepower|Weight|Acceleration|Year|Origin
+user's query:vertical stacked bar of number of models by cylinders, colored by origin.
+question structure:("data focus":"number of models", "category":"cylinders", "color attribute":"origin", "chart type":"stacked bar")
+enhanced query:Draw a vertical stacked bar chart to show the number of car models grouped by the number of cylinders, with different colors representing the origin of the cars.
+
+Example2:
+[HEAD]:Title|Worldwide Gross|Production Budget|Release Year|Content Rating|Running Time|Genre|Creative Type|Rotten Tomatoes Rating|IMDB Rating
+user's query:Which movie is the most popular?
+question structure:("data focus":"average rating", "category":"movie","color attribute":"movie", "chart type":"None")
+enhanced query:Draw a bar chart to show the average rating of each movie, combining Rotten Tomatoes Rating and IMDB Rating, and use different colors for each movie.
+
+Example3:
+[HEAD]:Lot Area|Lot Config|Home Type|Roof Style|Foundation Type|Basement Area|Heating Type|Central Air|Rooms|Fireplaces|Garage Type|Fence Type|Year|Price|Satisfaction
+user's query:Show houses after 2009.
+question structure:("data focus":"number of houses", "category":"houses", "color attribute":"year", "chart type":"None")
+enhanced query:Draw a bar chart to show the number of houses built after 2009, with different colors representing each year.
+
+Example4:
+[HEAD]:product_id|product_type_code|product_name|product_price
+user's query:Draw a scatter plot to demonstrate the price of clothes.
+question structure:("data focus":"product_price", "category":"clothes", "color attribute":"clothes", "chart type":"scatter")
+enhanced query:Create a scatter plot to show the prices of products where the product type is clothes. Use the product_price for the y-axis and product_id for the x-axis to display the data points.
+
+user's query:<<<{question}>>>
+question structure:("data focus":"", "category":"", "color attribute":"", "chart type":"")
+enhanced query:
