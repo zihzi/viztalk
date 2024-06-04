@@ -7,7 +7,7 @@ from langchain_openai import ChatOpenAI
 from langchain.schema import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = 'sk-'
 
 table = '''[HEAD]: Title|Worldwide Gross|Production Budget|Release Year|Content Rating|Running Time|Genre|Creative Type|Rotten Tomatoes Rating|IMDB Rating
 ---

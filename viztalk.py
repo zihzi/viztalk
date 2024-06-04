@@ -14,7 +14,7 @@ from langchain.schema import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.output_parsers import CommaSeparatedListOutputParser
 from langchain_experimental.agents import create_pandas_dataframe_agent
-# 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
+# sk-
 
 st.set_page_config(page_icon="analysis.png",layout="wide",page_title="VizTalk")
 # Set page content
