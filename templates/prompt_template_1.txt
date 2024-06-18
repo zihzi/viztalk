@@ -1,7 +1,7 @@
 Here is the database table column header [HEAD]:{head} and user's query(the sentences between the <<<>>> symbols).
 Based on the user's query and refering to the header, the structure of the question should be organized as follows:["Data focus","Category","Color attribute","Chart type"].
-"Data focus":The main piece of information user is interested in.Try to make it related to the header.
-"Category":The grouping or categorization attribute from the header.
+"Data focus":The main piece of information user is interested in.Try to associate it with header.
+"Category":The grouping or categorization attribute.Find it from the header.
 "Color attribute":The attribute used to color or differentiate segments within the chart.
 "Chart type":If a chart type is specified, determine which types it is refering to the following list.If the chart type is not in the following list, choose a reasonable one from the list.
 A.bar

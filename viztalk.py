@@ -1,25 +1,34 @@
 import pandas as pd
-import openai
+# from openai import OpenAI
 import streamlit as st
-#import streamlit_nested_layout
-# from classes import get_primer,format_question,run_request
+
+
+
 # import warnings
 # warnings.filterwarnings("ignore")
 st.set_option("deprecation.showPyplotGlobalUse", False)
 from langchain_core.prompts import PromptTemplate
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_openai import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain.schema import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.output_parsers import CommaSeparatedListOutputParser
-from langchain_experimental.agents import create_pandas_dataframe_agent
-# sk-
+from langchain.memory import ChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+# from langchain_experimental.agents import create_pandas_dataframe_agent
+# from langchain_community.embeddings.openai import OpenAIEmbeddings
+# from langchain.chains import conversational_retrieval
+# from langchain_community.document_loaders.csv_loader import CSVLoader
+# from langchain_community.vectorstores import FAISS
+
 
 st.set_page_config(page_icon="analysis.png",layout="wide",page_title="VizTalk")
 # Set page content
 st.title("📈VizTalk🔍")
-st.subheader("Give you insightful visualization through conversation!")
+# st.subheader("Give you insightful visualization through conversation!")
 
 # List to hold datasets
 if "datasets" not in st.session_state:
@@ -37,9 +46,6 @@ else:
     # use the list already loaded
     datasets = st.session_state["datasets"]
 
-#Set area for OpenAI key
-openai_key = st.text_input(label = ":key: OpenAI Key:", help="Required for models.",type="password")
-
 # Set left sidebar content
 with st.sidebar:
     # Set area for user guide
@@ -49,11 +55,13 @@ with st.sidebar:
             2. Select dataset from the list below or upload your own dataset.
             3. Type your question in the text area.
         """)
+#Set area for OpenAI key
+    openai_key = st.text_input(label = ":key: OpenAI Key:", help="Required for models.",type="password")
          
 # First we want to choose the dataset, but we will fill it with choices once we"ve loaded one
     dataset_container = st.empty()
 
-    # Add facility to upload a dataset
+    # Upload a dataset
     try:
         uploaded_file = st.file_uploader("📂 Load a CSV file:", type="csv")
         index_no = 0
@@ -70,7 +78,7 @@ with st.sidebar:
     chosen_dataset = dataset_container.radio("📊 Choose your data:",datasets.keys(),index=index_no)
     # pass to prompt template
     head = list(datasets[chosen_dataset].columns)
-
+  
 # load template
 def load_templates():
 
@@ -81,53 +89,84 @@ def load_templates():
 
     return templates
 
+# Initalize the chatbot
+with st.chat_message("assistant"):
+    st.write("Give you insightful visualization through conversation!✨")
+if "openai_model" not in st.session_state:
+    st.session_state["openai_model"] = "gpt-3.5-turbo"
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
 # Execute chatbot query
-with st.form("my_form"):
-     # Text area for query
-    question = st.text_area("Talk your data!",height=10)
-    submitted = st.form_submit_button("Submit")
-    if submitted > 0:
-        api_keys_entered = True
-        # Check API keys are entered.
-        if not openai_key.startswith("sk-"):
-            st.error("Please enter a valid OpenAI API key.")
-            api_keys_entered = False
-        if api_keys_entered:
-            # Place for plots depending on how many models
-            # plots = st.columns(1) 
-            # Create model, run the request and print the results
-            # with plots:
+    # Text input for query
+if question := st.chat_input("Talk your data!"):
+    api_keys_entered = True
+    # Check API keys are entered.
+    if not openai_key.startswith("sk-"):
+        st.error("Please enter a valid OpenAI API key.")
+        api_keys_entered = False
+    if api_keys_entered:
+        st.session_state.messages.append({"role": "user", "content": question})
+        with st.chat_message("user"):
+            st.markdown(question)
+
             # try:
-                templates = load_templates()
-                prompt_template_1, prompt_template_2, chat_template = templates
+            templates = load_templates()
+            prompt_template_1, prompt_template_2, chat_template = templates
 
-                prompt_1 = PromptTemplate.from_template(template = prompt_template_1)
-                llm_1 = OpenAI(model_name="gpt-3.5-turbo-instruct",openai_api_key = openai_key)
-                chain_1 = prompt_1 | llm_1 | StrOutputParser()
+            prompt_1 = PromptTemplate.from_template(template = prompt_template_1)
+            llm_1 = OpenAI(model_name="gpt-3.5-turbo-instruct",openai_api_key = openai_key)
+            chain_1 = prompt_1 | llm_1 | StrOutputParser()
 
-                prompt_2 = PromptTemplate.from_template(template=prompt_template_2)
-                llm_2 = OpenAI(model_name="gpt-3.5-turbo-instruct",openai_api_key = openai_key)#,model_kwargs={"stop": ["final table:"]})
-                chain_2 =  {"chosen_dataset": lambda x:datasets[chosen_dataset], "enhance_query": RunnablePassthrough()} | prompt_2 | llm_2.bind(stop = ["final table:"])| CommaSeparatedListOutputParser()
+            prompt_2 = PromptTemplate.from_template(template=prompt_template_2)
+            llm_2 = OpenAI(model_name="gpt-3.5-turbo-instruct",openai_api_key = openai_key)#,model_kwargs={"stop": ["final table:"]})
+            chain_2 =  {"chosen_dataset": lambda x:datasets[chosen_dataset], "enhance_query": RunnablePassthrough()} | prompt_2 | llm_2.bind(stop = ["final table:"])| CommaSeparatedListOutputParser()
+                
+            link_chain = ({"chain1":chain_1}
+                        | RunnablePassthrough.assign(chain2=chain_2))
+            materials = link_chain.invoke({"head":head,"question":question})
 
-                chat_prompt = ChatPromptTemplate.from_template(template=chat_template)
-                chat_llm = ChatOpenAI(model_name="gpt-3.5-turbo",openai_api_key = openai_key)
-                chat_chain = {"table":RunnablePassthrough(),"query":RunnablePassthrough()} | chat_prompt | chat_llm | StrOutputParser()
+            # chat_prompt = ChatPromptTemplate.from_template(template=chat_template)
+            prompt = ChatPromptTemplate.from_messages(
+                    [
+                        (
+                        "system",
+                        """You are a helpful assistant who's good at data visualization.Base on {query} and {table}, only provide code script start with code  "import ...".""",
+                        ),MessagesPlaceholder(variable_name="chat_history"), ("human","{query}")
+                    ]
+)
 
-                final_chain = ({"chain1":chain_1}
-                            | RunnablePassthrough.assign(chain2=chain_2)
-                            | RunnablePassthrough.assign(chatchain=chat_chain))
-                answer = final_chain.invoke({"head":head,"question":question})
-                #######fail to use pd_dataframe_agent########
-                # df = datasets[chosen_dataset]
-                # llm_agent = OpenAI(model_name="gpt-3.5-turbo-instruct",openai_api_key = openai_key)
-                # agent_executor = create_pandas_dataframe_agent( llm_agent,df,input_variables = answer["chain1"],agent_type= "zero-shot-react-description" , verbose= True , return_intermediate_steps= True)
-                # prompt_agent = '''Based on the {query}, generate correct df which can visualize the data that meet the query.Just provide the final df.'''
-                # agent_executor.invoke(prompt_agent)
-                # print(answer["chatchain"])
-                ############################################
-                st.info(answer)
-                plot_area = st.empty()
-                plot_area.pyplot(exec(answer["chatchain"]))        
+            chat_llm = ChatOpenAI(model_name="gpt-3.5-turbo",openai_api_key = openai_key)
+            chat_chain = prompt | chat_llm 
+            # {"query":RunnablePassthrough(), "table":RunnablePassthrough()}|
+            # | StrOutputParser()
+            store={}
+            def get_session_history(session_id):
+                if session_id not in store:
+                    store[session_id]= ChatMessageHistory()
+                return store[session_id]
+            # chat_history_for_chain = ChatMessageHistory()
+
+            chain_with_message_history = RunnableWithMessageHistory(
+                            chat_chain,
+                            get_session_history,
+                            input_messages_key="query",
+                            # output_messages_key="output_messages",
+                            history_messages_key="chat_history",
+                            )
+            answer = chain_with_message_history.invoke({"query":materials['chain1'],"table":materials['chain2']},config={"configurable":{"session_id":"1"}})
+            st.session_state.messages.append({"role": "assistant", "content": answer})  
+        with st.chat_message("assistant"):
+            st.write(answer.content)
+            plot_area = st.empty()
+            plot_area.pyplot(exec(answer.content))
+
+                
             # except Exception as e:
             #     if type(e) == openai.APIConnectionError:
             #                 st.error("OpenAI API Error. Please try again a short time later. (" + str(e) + ")")
@@ -146,17 +185,13 @@ with st.form("my_form"):
             #     else:
             #                 st.error("Unfortunately the code generated from the model contained errors and was unable to execute.")
 
-# Display the datasets in a list of tabs
-# Create the tabs
-tab_list = st.tabs(datasets.keys())
+# Display chosen datasets 
+if chosen_dataset :
+   st.subheader(chosen_dataset)
+   st.dataframe(datasets[chosen_dataset],hide_index=True)
+# Display plots
+plots = st.columns(5)
 
-# Load up each tab with a dataset
-for dataset_num, tab in enumerate(tab_list):
-    with tab:
-        # Can"t get the name of the tab! Can"t index key list. So convert to list and index
-        dataset_name = list(datasets.keys())[dataset_num]
-        st.subheader(dataset_name)
-        st.dataframe(datasets[dataset_name],hide_index=True)
 
 # Insert footer to reference dataset origin  
 footer="""<style>.footer {position: fixed;left: 0;bottom: 0;width: 100%;text-align: center;}</style><div class="footer">
