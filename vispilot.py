@@ -10,7 +10,7 @@ from scipy.stats import wasserstein_distance_nd
 data = pd.read_csv("clean_titanic.csv")
 # data["pc_class"] = data["pc_class"].astype(str)
 head = data.columns
-openai_key = "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"
+openai_key = ""
 
 lida = Manager(text_gen= llm("openai", api_key=openai_key))
 textgen_config = TextGenerationConfig(n=1, temperature=0.5, model="gpt-4o-mini", use_cache=True)

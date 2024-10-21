@@ -19,7 +19,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = ""
 
 # Set page config
 st.set_page_config(page_icon="analysis.png",layout="wide",page_title="Data2Poster")
