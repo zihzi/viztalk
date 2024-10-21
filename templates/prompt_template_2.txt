@@ -1,7 +1,7 @@
-The database table DF is shown as follows:\n{chosen_dataset}\n\n and the query based on the data above(the sentences between the <<<>>> symbols). Execute SQL or Python code step-by-step and finally provide the table which can transform to visual charts to meet the query. Choose from generating a SQL, Python code, or directly providing the table.DO NOT provide any sentences except for the final table.
+The dataframe DF is shown as follows:\n{chosen_dataset}\n and the query based on the data is {question}. Execute SQL or Python code step-by-step and finally provide the table which can transform to visual charts to meet the query. Choose from generating a SQL, Python code, or directly providing the table.DO NOT provide any sentences except for the final table.
 
 Example1:
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Model|MPG|Cylinders|Displacement|Horsepower|Weight|Acceleration|Year|Origin
 ---
 [ROW] 1: volkswagen 1131 deluxe sedan|26|4|97|46|1835|20.5|1970|Europe
@@ -19,7 +19,7 @@ Provide the table which can transform to visual charts to meet the query: "Draw 
 
 SQL: ```SELECT  Model,Cylinders,Origin FROM DF;```.
 
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Model|Cylinders|Origin
 ---
 [ROW] 1: volkswagen 1131 deluxe sedan|4|Europe
@@ -37,7 +37,7 @@ Provide the table which can transform to visual charts to meet the query: "Draw 
 
 SQL: ```SELECT Cylinders, Origin, COUNT(Model) as NumberOfModels FROM DF GROUP BY Cylinders, Origin;```.
 
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Cylinders|Origin|NumberOfModels
 ---
 [ROW] 1: 4|Europe|7
@@ -57,7 +57,7 @@ final table:
 
 
 Example2:
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Title|Worldwide Gross|Production Budget|Release Year|Content Rating|Running Time|Genre|Creative Type|Rotten Tomatoes Rating|IMDB Rating
 ---
 [ROW] 1: From Dusk Till Dawn|25728961|20000000|1996|R|107|Horror|Fantasy|63|7.1
@@ -77,7 +77,7 @@ Python: ```
 DF['Average Rating'] = DF[['Rotten Tomatoes Rating', 'IMDB Rating']].mean(axis=1)
 ```.
 
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Title|Worldwide Gross|Production Budget|Release Year|Content Rating|Running Time|Genre|Creative Type|Rotten Tomatoes Rating|IMDB Rating|Average Rating
 ---
 [ROW] 1: From Dusk Till Dawn|25728961|20000000|1996|R|107|Horror|Fantasy|63|7.1|35.05
@@ -95,7 +95,7 @@ Provide the table which can transform to visual charts to meet the query: "Draw 
 
 SQL: ```SELECT  Title,Average Rating FROM DF;```.
 
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Title|Average Rating
 ---
 [ROW] 1: From Dusk Till Dawn|35.05
@@ -113,7 +113,7 @@ Provide the table which can transform to visual charts to meet the query: "Draw 
 
 SQL: ```SELECT * FROM DF ORDER BY Average Rating DESC;```.
 
-The database table DF is shown as follows:
+The dataframe DF is shown as follows:
 [HEAD]: Title||Average Rating
 ---
 [ROW] 1: Fargo|51.15
@@ -146,5 +146,6 @@ final table:
 ```.
 
 
-query:<<<{enhance_query}>>>
-final table:
+- Do NOT EXPLAIN. 
+- DO NOT COMMENT. 
+- ONLY generate the final table.
