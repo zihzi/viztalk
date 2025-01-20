@@ -11,8 +11,8 @@ The code you write MUST FOLLOW VISUALIZATION BEST PRACTICES ie. apply the right 
 use the right data encoding, and use the right aesthetics (e.g., ENSURE x-label and y-label are both visible, ensure axis are legible). 
 The transformations you apply MUST be correct and the fields you use MUST be correct. 
 The visualization CODE MUST BE EXECUTABLE and MUST NOT CONTAIN ANY SYNTAX OR LOGIC ERRORS (e.g., it must consider the field types and use them correctly). 
-You MUST first generate a brief plan for how you would solve the task e.g. what transformations you would apply 
-e.g. if you need to construct a new column(i.e.,dimension), what fields you would use, what visualization type you would use, what aesthetics you would use, etc.
+You MUST first generate a brief plan for how you would solve the task e.g. what transformations you would apply if you need to construct a new column, 
+what fields you would use, what visualization type you would use, what aesthetics you would use, etc.
 """
 
 
@@ -25,20 +25,19 @@ class VizGenerator(object):
 
         self.scaffold = ChartScaffold()
 
-    def generate(self, summary: Dict, df_data_scope1: Dict, df_data_scope2: Dict,
-                 textgen_config: TextGenerationConfig, text_gen: TextGenerator):
+    def generate(self, summary: Dict, df_data_scope: Dict, textgen_config: TextGenerationConfig, text_gen: TextGenerator):
         """Generate visualization code given a summary"""
 
-        template, instructions = self.scaffold.get_template(df_data_scope1, df_data_scope2)
+        template, instructions = self.scaffold.get_template(df_data_scope)
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "system", "content": f"The dataset summary is : {summary} \n\n"},
             {"role": "assistant", "content": f"I'll give you some rules to follow, and I need you to remember the rules, and write EXECUTABLE code that do not violate any rules.\n\n"},
-            {"role": "assistant", "content": instructions},
+            instructions,
             {"role": "user",
              "content":
              f"""
-             The visualization code MUST only use data fields that exist in the dataset (field_names) or fields that are transformations based on existing field_names). 
+             The visualization code MUST only use data fields that exist in the dataset (field_names) or fields that are transformations based on existing (field_names). 
              Only use variables that have been defined in the code or are in the dataset summary. 
              You MUST return a FULL PYTHON PROGRAM ENCLOSED IN BACKTICKS ``` that starts with an import statement. DO NOT add any explanation.
              THE GENERATED CODE SOLUTION SHOULD BE CREATED BY MODIFYING THE SPECIFIED PARTS OF THE TEMPLATE BELOW \n\n {template} \n\n.

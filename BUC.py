@@ -1,16 +1,17 @@
 import pandas as pd
 
-dataList = pd.read_csv("data/data.csv")
-lenN = dataList.columns.size
-NumFall = [0] * lenN
-ValueFall = []
-for j in range(lenN):
-    ValueSingle = []
-    for i in range(len(dataList)):
-        if dataList.iloc[i,j] not in ValueSingle:
-            ValueSingle.append(dataList.iloc[i,j])
-    ValueFall.append(ValueSingle)
-    NumFall[j] = len(ValueSingle)   
+def preprocess(dataList):
+    lenN = dataList.columns.size
+    NumFall = [0] * lenN
+    ValueFall = []
+    for j in range(lenN):
+        ValueSingle = []
+        for i in range(len(dataList)):
+            if dataList.iloc[i,j] not in ValueSingle:
+                ValueSingle.append(dataList.iloc[i,j])
+        ValueFall.append(ValueSingle)
+        NumFall[j] = len(ValueSingle) 
+    return ValueFall, NumFall  
 # print("ValueFall: ",ValueFall)
 # print("NumFall: ",NumFall)
 
@@ -25,7 +26,8 @@ def count(list,data):
         if isIn:
             number += 1
     return number
-def BUC(tempList, n, curN, min_sup = 3):
+def BUC(dataList, tempList, n, curN, min_sup = 50):
+    ValueFall, NumFall = preprocess(dataList)
     if curN == n:
         return
     for i in range(NumFall[curN]):
@@ -33,7 +35,6 @@ def BUC(tempList, n, curN, min_sup = 3):
         if count(tempList, dataList) >= min_sup:
             if len(tempList) <= 2:
              print("%s: %d" % (tempList, count(tempList, dataList)))
-             BUC(tempList, n, curN+1)
+             BUC(dataList,tempList, n, curN+1)
         tempList.pop()
-    BUC(tempList, n, curN+1)
-BUC([], 6, 0)
+    BUC(dataList,tempList, n, curN+1)

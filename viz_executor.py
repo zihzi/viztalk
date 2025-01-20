@@ -15,10 +15,10 @@ from lida.datamodel import ChartExecutorResponse, Summary
 
 def preprocess_code(code: str) -> str:
     """Preprocess code to remove any preamble and explanation text"""
+
     code = code.replace("<imports>", "")
     code = code.replace("<stub>", "")
     code = code.replace("<transforms>", "")
-  
 
     # remove all text after chart = plot(data)
     if "chart = plot(data)" in code:
@@ -86,7 +86,7 @@ class ChartExecutor:
         code_specs: List[str],
         data: Any,
         summary: Summary,
-        library="matplotlib",
+        library="altair",
         return_error: bool = False,
     ) -> Any:
         """Validate and convert code"""
@@ -96,34 +96,29 @@ class ChartExecutor:
 
         charts = []
         code_spec_copy = code_specs[:]
-        code_spec_copy = preprocess_code(code_spec_copy)
-        
-        try: 
-                    
-            ex_locals = get_globals_dict(code_spec_copy, data)
-                            
-            exec(code_spec_copy, ex_locals)
-            chart = ex_locals["chart"]
-            if plt:
-                buf = io.BytesIO()
-                plt.box(False)
-                plt.savefig(buf, format="png", dpi=100, pad_inches=0.2)
-                buf.seek(0)
-                plot_data = base64.b64encode(buf.read()).decode("ascii")
-                plt.close()
-                charts.append(
-                            ChartExecutorResponse(
-                                spec=None,
-                                status=True,
-                                raster=plot_data,
-                                code=code_spec_copy,
-                                library=library,
-                            )
+        code_specs = preprocess_code(code_specs)
+        try:
+                    ex_locals = get_globals_dict(code_specs, data)
+                    exec(code_specs, ex_locals)
+                    chart = ex_locals["chart"]
+                    vega_spec = chart.to_dict()
+                    del vega_spec["data"]
+                    if "datasets" in vega_spec:
+                        del vega_spec["datasets"]
+                    vega_spec["data"] = {"values": data.to_dict(orient="records")}
+                    charts.append(
+                        ChartExecutorResponse(
+                            spec=vega_spec,
+                            status=True,
+                            raster=None,
+                            code=code_specs,
+                            library="altair",
                         )
-               
+                    )
         except Exception as exception_error:
-                    print(code_spec_copy)
-                    print("****\n", str(exception_error))
+                    print(code_spec_copy, "\n===========\n")
+                    print(exception_error)
+                    print(traceback.format_exc())
                     if return_error:
                         charts.append(
                             ChartExecutorResponse(
@@ -131,7 +126,7 @@ class ChartExecutor:
                                 status=False,
                                 raster=None,
                                 code=code_spec_copy,
-                                library=library,
+                                library="altair",
                                 error={
                                     "message": str(exception_error),
                                     "traceback": traceback.format_exc(),
@@ -139,7 +134,6 @@ class ChartExecutor:
                             )
                         )
         return charts
-      
 
 
             
