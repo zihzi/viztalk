@@ -983,10 +983,10 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
     for column in columns_from_gpt["related_columns"]:
         columns_dic[column["name"]] = column["dtype"]
     # subspace = list(columns_dic.keys())  # Any column can be part of subspace
-    subspace = [col for col, dtype in columns_dic.items() if dtype == "category" or dtype == "time"]# subspace exclude dtype=="number"
-    breakdown_C = [col for col, dtype in columns_dic.items() if dtype == "category"]
-    breakdown_T = [col for col, dtype in columns_dic.items() if dtype == "time"]    
-    measure = [col for col, dtype in columns_dic.items() if dtype == "number"]
+    subspace = [col for col, dtype in columns_dic.items() if dtype == "C" or dtype == "T"]# subspace exclude dtype=="number"
+    breakdown_C = [col for col, dtype in columns_dic.items() if dtype == "C"]
+    breakdown_T = [col for col, dtype in columns_dic.items() if dtype == "T"]    
+    measure = [col for col, dtype in columns_dic.items() if dtype == "N"]
     # Iterate over all columns for subspace
     result_C = []
     result_T = []
@@ -1021,7 +1021,7 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
         df_less_than_mean = df_for_cal
         for col in list(columns_dic.items()):  # example: col= [0:"Cylinders" 1:"number"]
             # When subspace is "category"
-            if col[0] == res["subspace"] and col[1] == "category":
+            if col[0] == res["subspace"] and col[1] == "C":
                 unique_values = df_for_cal[res["subspace"]].unique()
                 for value in unique_values:
                     df_for_category = df_for_cal[df_for_cal[res["subspace"]] == value]
@@ -1063,7 +1063,7 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
                     fact.append(fact_type_category.outlier_C(res["subspace"], res["breakdown"], res["measure"], "min", value))
                                        
             # When subspace is "time"
-            elif col[0] == res["subspace"] and col[1] == "time":
+            elif col[0] == res["subspace"] and col[1] == "T":
                 unique_values = df_for_cal[res["subspace"]].unique()
                 for value in unique_values:
                     df_for_time = df_for_cal[df_for_cal[res["subspace"]] == value]
@@ -1105,7 +1105,7 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
                     fact.append(fact_type_time.outlier_C(res["subspace"], res["breakdown"], res["measure"], "min", value))
                    
             # When subspace is "number"     
-            # elif col[0] == res["subspace"] and col[1] == "number":
+            # elif col[0] == res["subspace"] and col[1] == "N":
             #     df_greater_than_mean = df_for_cal[df_for_cal[res["subspace"]] >= df_for_cal[res["subspace"]].mean()]
             #     df_less_than_mean = df_for_cal[df_for_cal[res["subspace"]] < df_for_cal[res["subspace"]].mean()]   
             #     fact_type_greater_than_mean = FactTypeGenerator(df_greater_than_mean)
@@ -1188,7 +1188,7 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
         df_less_than_mean = df_for_cal
         for col in list(columns_dic.items()):  # example: col= [0:"Cylinders"1:"number"]
             # When subspace is "category"
-            if col[0] == res["subspace"] and col[1] == "category":
+            if col[0] == res["subspace"] and col[1] == "C":
                 unique_values = df_for_cal[res["subspace"]].unique()
                 for value in unique_values:
                     df_for_category = df_for_cal[df_for_cal[res["subspace"]] == value]
@@ -1228,7 +1228,7 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
                     fact.append(fact_type_category.outlier_C(res["subspace"], res["breakdown"], res["measure"], "min", value))
                    
             # When subspace is "time"
-            elif col[0] == res["subspace"] and col[1] == "time":  
+            elif col[0] == res["subspace"] and col[1] == "T":  
                 unique_values = df_for_cal[res["subspace"]].unique()
                 for value in unique_values:
                     df_for_time = df_for_cal[df_for_cal[res["subspace"]] == value]
@@ -1268,7 +1268,7 @@ def fact_generator(columns_from_gpt, df, user_selected_column):
                     fact.append(fact_type_time.outlier_C(res["subspace"], res["breakdown"], res["measure"], "min", value))
 
             # # When subspace is "number"
-            # elif col[0] == res["subspace"] and col[1] == "number":
+            # elif col[0] == res["subspace"] and col[1] == "N":
             #     df_greater_than_mean = df_for_cal[df_for_cal[res["subspace"]] >= df_for_cal[res["subspace"]].mean()]
             #     df_less_than_mean = df_for_cal[df_for_cal[res["subspace"]] < df_for_cal[res["subspace"]].mean()]
             #     fact_type_greater_than_mean = FactTypeGenerator(df_greater_than_mean)

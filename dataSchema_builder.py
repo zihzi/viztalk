@@ -22,9 +22,9 @@ def get_column_properties(df: pd.DataFrame, n_samples: int = 3) -> list[dict]:
             properties = {}
             # Detect columns that are likely to represent temporal data.
             if any(keyword in column.lower() for keyword in temporal_keywords):
-                properties["dtype"] = "time"
+                properties["dtype"] = "T"
             elif dtype in [int, float, complex]:
-                properties["dtype"] = "number"
+                properties["dtype"] = "N"
                 properties["std"] = check_type(dtype, df[column].std())
                 properties["mean"] = check_type(dtype, df[column].mean())
                 properties["median"] = check_type(dtype, df[column].median())
@@ -42,11 +42,11 @@ def get_column_properties(df: pd.DataFrame, n_samples: int = 3) -> list[dict]:
                 except ValueError:
                     # Check if the string column has a limited number of values
                     if df[column].nunique() / len(df[column]) < 0.5:
-                        properties["dtype"] = "category"
+                        properties["dtype"] = "C"
                     else:
                         properties["dtype"] = "string"
             elif pd.api.types.is_categorical_dtype(df[column]):
-                properties["dtype"] = "category"
+                properties["dtype"] = "C"
             elif pd.api.types.is_datetime64_any_dtype(df[column]):
                 properties["dtype"] = "date"
             

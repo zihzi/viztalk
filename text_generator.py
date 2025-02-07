@@ -9,11 +9,11 @@ def introduction(title, topic, openai_key):
     prompt = PromptTemplate(
             template="""You are an excellent data scientist. 
                         You are an expert in the domain of given dataset.
-                        You are writing an introduction for a poster which title is the {title} to present the data analysis results.
-                        Acoording to the information from {topic}, there is a poster question and three data facts represented as viusalization charts.
-                        These charts are designed to answer the poster question in different aspects.
+                        You are writing an introduction for a poster whose title is a question {title} to present the data analysis results.
+                        Acoording to the information from {topic}, there is a main question and three objects which will be represented as viusalization charts.
+                        These charts are designed to interpret the main question(i.e. title) in different aspects.
                         Think step by step about how well are these charts doing and write a brief introduction for the poster in three sentences.
-                        Please do not use columnar formulas. Do not use special symbols such as *, `""",
+                        Please do not use columnar formulas. Do not use special symbols such as *, `. BE CONCISE.""",
             input_variables=["title", "topic"]
         )
         
